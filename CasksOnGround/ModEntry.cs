@@ -21,9 +21,12 @@ namespace CasksOnGround
             }
         }
 
+        public static IMonitor monitor { get; private set; }
+
         public override void Entry(IModHelper helper)
         {
             Reflection = helper.Reflection;
+            monitor = Monitor;
             HarmonyInstance harmony = HarmonyInstance.Create("punyo.CasksOnGround");
             MethodInfo methodBase = typeof(Cask).GetMethod("performObjectDropInAction", BindingFlags.Public | BindingFlags.Instance);
             MethodInfo methodPatcher = typeof(CaskPatcher).GetMethod("Prefix", BindingFlags.Public | BindingFlags.Static);
@@ -39,6 +42,7 @@ namespace CasksOnGround
                 return;
             }
             harmony.Patch(methodBase, new HarmonyMethod(methodPatcher), null);
+            Monitor.Log($"Patched {methodBase.DeclaringType.FullName}.{methodBase.Name} by {methodPatcher.DeclaringType.FullName}.{methodPatcher.Name}");
         }
     }
 
@@ -64,6 +68,7 @@ namespace CasksOnGround
             {
                 return false;
             }
+            
             bool goodItem = false;
             float multiplier = 1f;
             switch (dropIn.ParentSheetIndex)
